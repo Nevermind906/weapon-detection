@@ -1,8 +1,9 @@
 import sys
 import os.path
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtGui import QImage, QPalette, QBrush
+from PyQt5.QtGui import QImage, QPalette, QBrush, QPixmap
 from PyQt5.QtCore import QSize, Qt
+from detector.bboxes import predict
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
@@ -13,6 +14,7 @@ class Ui(QtWidgets.QMainWindow):
         self.open.triggered.connect(self.openPressed) # Remember to pass the definition/method, not the return value!
 
         self.save = self.findChild(QtWidgets.QAction, 'save') # Find the button
+        self.save.setShortcut("Ctrl+S")
         self.save.triggered.connect(self.savePressed) # Remember to pass the definition/method, not the return value!
 
         self.grayscale = self.findChild(QtWidgets.QAction, 'grayscale') # Find the button
@@ -21,26 +23,35 @@ class Ui(QtWidgets.QMainWindow):
         self.update = self.findChild(QtWidgets.QAction, 'update') # Find the button
         self.update.triggered.connect(self.updatePressed) # Remember to pass the definition/method, not the return value!
 
+        self.imageLabel = self.findChild(QtWidgets.QLabel, 'label')
+        self.fname = "temp.png"
+        self.image = QImage("temp.png")
+
         self.show()
 
     def openPressed(self):
         # This is executed when the button is pressed
-        fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '.')[0]
-        print(fname)
-        if os.path.isfile(fname):
-            self.image = QImage(fname)              # resize Image to widgets size
-            sImage = self.image.scaled(QSize(800,600), Qt.KeepAspectRatio)
-            palette = QPalette()
-            palette.setBrush(QPalette.Window, QBrush(sImage))
-            self.setPalette(palette)
-
-            self.label = QtWidgets.QLabel('Test', self)                        # test, if it's really backgroundimage
-            self.label.setGeometry(50,50,200,50)
+        self.fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '.')[0]
+        if os.path.isfile(self.fname):
+            cvImg = predict(self.fname)
+            height, width, channel = cvImg.shape
+            bytesPerLine = 3 * width
+            self.image = QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            image = self.image.scaled(self.width(), int(self.height()*0.95), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.imageLabel.resize(self.size())
+            self.imageLabel.setPixmap(QPixmap(image))
             self.show()
+
+    def resizeEvent(self, event):
+        image = self.image.scaled(self.width(), int(self.height()*0.95), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.imageLabel.resize(self.size())
+        self.imageLabel.setPixmap(QPixmap(image))
+        self.show()
 
     def savePressed(self):
         # This is executed when the button is pressed
-        print('Saving file')
+        name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', self.fname.split(".")[0] + '_prediction.png')
+        self.image.save(name[0])
 
     def grayscalePressed(self):
         # This is executed when the button is pressed
