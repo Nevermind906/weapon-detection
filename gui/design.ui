@@ -36,7 +36,7 @@
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
      <string/>
@@ -66,7 +66,7 @@
     <property name="title">
      <string>Настройки</string>
     </property>
-    <addaction name="grayscale"/>
+    <addaction name="detailed"/>
     <addaction name="update"/>
    </widget>
    <addaction name="menudf"/>
@@ -83,18 +83,18 @@
     <string>Сохранить</string>
    </property>
   </action>
-  <action name="grayscale">
+  <action name="detailed">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
-    <string>Конвертировать в ч/б</string>
+    <string>Подробная информация</string>
    </property>
    <property name="toolTip">
-    <string>Конвертировать в ч/б</string>
+    <string>Подробная информация</string>
    </property>
   </action>
   <action name="update">

@@ -4,7 +4,7 @@ import os
 from detector import LABELS, net
 
 
-def predict(path):
+def predict(path, detailed=False):
 
     image = cv2.imread(path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -14,9 +14,9 @@ def predict(path):
     COLORS = [(255, 0, 0),
             (0, 255, 0),
             (0, 0, 255),
-            (127, 127, 0),
-            (127, 0, 127),
-            (0, 127, 127)
+            (191, 191, 0),
+            (191, 0, 127),
+            (0, 127, 191)
     ]
     (H, W) = image.shape[:2]
 
@@ -82,7 +82,8 @@ def predict(path):
             # draw a bounding box rectangle and label on the image
             color = COLORS[classIDs[i]]
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 4)
-            text = "{0} {1}".format(LABELS[classIDs[i]], "%.3f" % confidences[i])
-            cv2.putText(image, text, (x +15, y - 10), cv2.FONT_HERSHEY_SIMPLEX,
-                1, color, 2)
+            if detailed:
+                text = "{0} {1}".format(LABELS[classIDs[i]], "%.3f" % confidences[i])
+                cv2.putText(image, text, (x +15, y - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                    1, color, 2)
     return image
